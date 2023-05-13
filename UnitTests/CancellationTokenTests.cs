@@ -90,5 +90,13 @@ namespace UnitTests
 
             Assert.AreEqual(SourceIdentifier, last);
         }
+
+        [TestMethod]
+        public void TestNullEvent()
+        {
+            CancellationTokenSource src = new CancellationTokenSource();
+            CancellationTokenEventRegistration registration = new CancellationTokenEventRegistration(src.Token);
+            src.Cancel();
+        }
     }
 }

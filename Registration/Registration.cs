@@ -11,7 +11,13 @@ namespace RhubarbGeekNz.CancellationTokenEvent
         private readonly IDisposable CancellationTokenRegistration;
         public CancellationTokenEventRegistration(System.Threading.CancellationToken ct)
         {
-            CancellationTokenRegistration = ct.Register(() => Cancelled());
+            CancellationTokenRegistration = ct.Register(() =>
+            {
+                if (Cancelled != null)
+                {
+                    Cancelled();
+                }
+            });
         }
     }
 }
