@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>rhubarb-geek-nz.CancellationTokenEvent</id>
+    <version>1.0.0</version>
+    <authors>Roger Brown</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/rhubarb-geek-nz/CancellationTokenEvent</projectUrl>
+    <description>CancellationToken event registration</description>
+    <releaseNotes>Initial Release</releaseNotes>
+    <copyright>2023</copyright>
+    <tags>CancellationTokenEvent</tags>
+  </metadata>
+  <files>
+     <file src="rhubarb-geek-nz.CancellationTokenEvent\README.md" target="" />
+     <file src="rhubarb-geek-nz.CancellationTokenEvent\*.dll" target="" />
+     <file src="rhubarb-geek-nz.CancellationTokenEvent\*.psd1" target="" />
+  </files>
+</package>
