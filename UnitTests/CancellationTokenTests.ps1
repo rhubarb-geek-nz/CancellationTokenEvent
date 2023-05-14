@@ -35,3 +35,5 @@ Remove-Event -EventIdentifier $event.EventIdentifier
 Unregister-Event -SourceIdentifier $SourceIdentifier
 
 $cancellationEvent.Dispose()
+
+$cancellationTokenSource.Dispose()
