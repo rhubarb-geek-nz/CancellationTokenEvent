@@ -26,14 +26,15 @@ if ( -not ( Test-Path $OutDir ))
 	throw "$OutDir not found"
 }
 
-$xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.nuspec")
+$xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.csproj")
 
-$ModuleId = $xmlDoc.SelectSingleNode("/package/metadata/id").FirstChild.Value
-$Version = $xmlDoc.SelectSingleNode("/package/metadata/version").FirstChild.Value
-$ProjectUri = $xmlDoc.SelectSingleNode("/package/metadata/projectUrl").FirstChild.Value
-$Description = $xmlDoc.SelectSingleNode("/package/metadata/description").FirstChild.Value
-$Author = $xmlDoc.SelectSingleNode("/package/metadata/authors").FirstChild.Value
-$Copyright = $xmlDoc.SelectSingleNode("/package/metadata/copyright").FirstChild.Value
+$ModuleId = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/PackageId").FirstChild.Value
+$Version = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Version").FirstChild.Value
+$ProjectUri = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/PackageProjectUrl").FirstChild.Value
+$Description = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Description").FirstChild.Value
+$Author = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Authors").FirstChild.Value
+$Copyright = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Copyright").FirstChild.Value
+$AssemblyName = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/AssemblyName").FirstChild.Value
 
 $ModulePath = ( $OutDir + $ModuleId )
 
@@ -48,25 +49,15 @@ Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
 	$Name = $_.Name
 
 	$_ | Copy-Item -Destination $ModulePath
-
-	if ( Test-Path -LiteralPath 'signtool.ps1' )
-	{
-		pwsh ./signtool.ps1 -Path ( $ModulePath + $DSC + $Name )
-
-		If ( $LastExitCode -ne 0 )
-		{
-			throw "signtool.ps1 $ModulePath$DSC$Name"
-		}
-	}
 }
 
 Copy-Item -LiteralPath ( '..'+$DSC+'README.md' ) -Destination $ModulePath
 
-$CmdletsToExport = "'Register-CancellationTokenEvent'"
+$CmdletsToExport = "'Register-CancellationTokenEvent','Invoke-CommandWithCancellationToken'"
 
 @"
 @{
-	RootModule = 'RhubarbGeekNz.$ModuleName.PSCmdlet.dll'
+	RootModule = '$AssemblyName.dll'
 	ModuleVersion = '$Version'
 	GUID = 'cb6bb4f1-56ee-4dce-be88-6eb5f7957c7c'
 	Author = '$Author'

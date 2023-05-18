@@ -121,4 +121,7 @@
   <data name="CancellationTokenTests" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>CancellationTokenTests.ps1;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="CommandWithCancellationTokenTests" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>CommandWithCancellationTokenTests.ps1;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

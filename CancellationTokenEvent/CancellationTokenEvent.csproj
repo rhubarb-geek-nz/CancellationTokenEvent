@@ -3,7 +3,30 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RhubarbGeekNz.CancellationTokenEvent.PSCmdlet</AssemblyName>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
+    <Version>1.0.1</Version>
+    <AssemblyTitle>PowerShell Cmdlet for CancellationTokenEvent</AssemblyTitle>
+    <Product>CancellationTokenEvent for PowerShell</Product>
+    <Company>rhubarb-geek-nz</Company>
+    <PackageId>rhubarb-geek-nz.CancellationTokenEvent</PackageId>
+    <Title>CancellationTokenEvent for PowerShell</Title>
+    <Description>CancellationToken event registration</Description>
+    <Authors>Roger Brown</Authors>
+    <PackageProjectUrl>https://github.com/rhubarb-geek-nz/CancellationTokenEvent</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rhubarb-geek-nz/CancellationTokenEvent.git</RepositoryUrl>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>CancellationTokenEvent</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1">
@@ -14,6 +37,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Registration\Registration.csproj" />
   </ItemGroup>
+
+  <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
+    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+  </Target>
 
   <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
     <Exec Command="pwsh ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(TargetDir)" />

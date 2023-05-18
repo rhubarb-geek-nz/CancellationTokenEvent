@@ -61,14 +61,62 @@ namespace UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # Copyright (c) 2023 Roger Brown.
+        ///   Looks up a localized string similar to #!/usr/bin/env pwsh
+        ///# Copyright (c) 2023 Roger Brown.
         ///# Licensed under the MIT License.
+        ///param(
+        ///	$ArgumentByName = $False,
+        ///	$SourceIdentifier = &apos;CancellationToken&apos;
+        ///)
         ///
-        ///.
+        ///trap
+        ///{
+        ///	throw $PSItem
+        ///}
+        ///
+        ///$cancellationTokenSource = New-Object -Type System.Threading.CancellationTokenSource
+        ///$cancellationTokenSource.CancelAfter(5000)
+        ///$cancellationToken = $cancellationTokenSource.Token
+        ///
+        ///if ($ArgumentByName)
+        ///{
+        ///	$cancellationEvent = Register-CancellationTokenEvent -CancellationToken $cancellationToken
+        ///}
+        ///el [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string CancellationTokenTests {
             get {
                 return ResourceManager.GetString("CancellationTokenTests", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #!/usr/bin/env pwsh
+        ///# Copyright (c) 2023 Roger Brown.
+        ///# Licensed under the MIT License.
+        ///param(
+        ///	$ArgumentByName = $False,
+        ///	$SourceIdentifier = &apos;CancellationToken&apos;
+        ///)
+        ///
+        ///trap
+        ///{
+        ///	throw $PSItem
+        ///}
+        ///
+        ///$cancellationTokenSource = New-Object -Type System.Threading.CancellationTokenSource
+        ///$cancellationTokenSource.CancelAfter(5000)
+        ///$cancellationToken = $cancellationTokenSource.Token
+        ///
+        ///if ($ArgumentByName)
+        ///{
+        ///	$cancellationEvent = Register-CancellationTokenEvent -CancellationToken $cancellationToken
+        ///}
+        ///el [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CommandWithCancellationTokenTests {
+            get {
+                return ResourceManager.GetString("CommandWithCancellationTokenTests", resourceCulture);
             }
         }
     }
