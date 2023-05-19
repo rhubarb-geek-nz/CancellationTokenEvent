@@ -1,7 +1,9 @@
 # CancellationTokenEvent
-Register an event for a `CancellationToken` to be used by `PowerShell`'s `Register-ObjectEvent`
+`CancellationToken` tools for `PowerShell`
 
-## Register-CancellationEventToken
+## Register-CancellationTokenEvent
+
+Use `CancellationToken` with `PowerShell` events
 
 Example code
 
@@ -32,6 +34,26 @@ public class CancellationTokenEventRegistration : IDisposable
 
 When the cancellation is triggered it will invoke the `Cancelled` action event. When the registration is no longer needed then call `Dispose()` to unregister.
 See [UnitTests/CancellationTokenTests.ps1](UnitTests/CancellationTokenTests.ps1) for full example.
+
+## Invoke-CommandWithCancellationToken
+
+Use a `CancellationToken` to stop a `ScriptBlock`
+
+Example code
+
+```
+$cancellationTokenSource = New-Object -Type System.Threading.CancellationTokenSource
+$cancellationTokenSource.CancelAfter(5000)
+$cancellationToken = $cancellationTokenSource.Token
+
+Invoke-CommandWithCancellationToken -ScriptBlock {
+    Wait-Event
+} -CancellationToken $cancellationToken -NoNewScope
+```
+
+This will stop the `Wait-Event` after 5 seconds. Internally this works by running the `ScriptBlock` with `Invoke-Command` and using the `CancellationTokento` call `Stop`.
+
+## Build
 
 To build use
 
