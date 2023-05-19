@@ -51,7 +51,7 @@ Invoke-CommandWithCancellationToken -ScriptBlock {
 } -CancellationToken $cancellationToken -NoNewScope
 ```
 
-This will stop the `Wait-Event` after 5 seconds. Internally this works by running the `ScriptBlock` with `Invoke-Command` and using the `CancellationTokento` call `Stop`.
+This will stop the `Wait-Event` after 5 seconds. Internally this works by running the `ScriptBlock` with `Invoke-Command` and using the `CancellationToken` to call `Stop`.
 
 ## Build
 
