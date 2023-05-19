@@ -17,14 +17,13 @@ namespace RhubarbGeekNz.CancellationTokenEvent
         [Parameter(Mandatory = true)]
         public ScriptBlock ScriptBlock { get; set; }
 
-        [Parameter(Mandatory = false)]
+        [Parameter]
         public object [] ArgumentList { get; set; }
 
         [Parameter]
         public SwitchParameter NoNewScope { get; set; }
 
-        [Parameter(Mandatory = false)]
-
+        [Parameter]
         public PSObject InputObject { get; set; }
 
         private PowerShell m_powerShell;
@@ -92,14 +91,8 @@ namespace RhubarbGeekNz.CancellationTokenEvent
                     {
                         Host = Host,
                         ExposeFlowControlExceptions = true,
-                        ErrorActionPreference = (ActionPreference?)CommandRuntime.GetType().GetProperty(
-                            "ErrorAction", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(CommandRuntime, null)
+                        ErrorActionPreference = GetErrorActionPreference()
                     };
-
-                    if (CancellationToken.IsCancellationRequested)
-                    {
-                        throw new OperationCanceledException(CancellationToken);
-                    }
 
                     try
                     {
@@ -108,14 +101,9 @@ namespace RhubarbGeekNz.CancellationTokenEvent
                             m_powerShell = powerShell;
                         }
 
-                        if (!Stopping)
+                        if (!Stopping && !CancellationToken.IsCancellationRequested)
                         {
                             powerShell.Invoke<object, object>(input, output, invocationSettings);
-
-                            if (CancellationToken.IsCancellationRequested)
-                            {
-                                throw new OperationCanceledException(CancellationToken);
-                            }
                         }
                     }
                     finally
@@ -127,10 +115,58 @@ namespace RhubarbGeekNz.CancellationTokenEvent
                     }
                 }
             }
+
+            if (CancellationToken.IsCancellationRequested)
+            {
+                Exception exception = new OperationCanceledException(CancellationToken);
+                string errorId = exception.GetType().Name;
+
+                WriteError(new ErrorRecord(exception, errorId, ErrorCategory.OperationStopped, null));
+            }
         }
 
         protected override void EndProcessing()
         {
+        }
+
+        private ActionPreference ? GetErrorActionPreference()
+        {
+            ActionPreference? result;
+            PropertyInfo pi = CommandRuntime.GetType().GetProperty("ErrorAction", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            if ((pi != null) && typeof(ActionPreference).IsAssignableFrom(pi.PropertyType))
+            {
+                result = (ActionPreference?)pi.GetValue(CommandRuntime, null);
+            }
+            else
+            {
+                object ErrorActionPreference = GetVariableValue("ErrorActionPreference");
+
+                if (ErrorActionPreference != null)
+                {
+                    if (ErrorActionPreference is ActionPreference)
+                    {
+                        result = (ActionPreference)ErrorActionPreference;
+                    }
+                    else
+                    {
+                        if (ErrorActionPreference is string)
+                        {
+                            result = (ActionPreference)Enum.Parse(typeof(ActionPreference), (string)ErrorActionPreference);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"ErrorActionPreference {ErrorActionPreference}");
+                        }
+                    }
+                }
+                else
+                {
+                    result = null;
+                }
+            }
+
+            return result;
         }
     }
 }

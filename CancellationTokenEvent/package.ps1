@@ -53,25 +53,42 @@ Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
 
 Copy-Item -LiteralPath ( '..'+$DSC+'README.md' ) -Destination $ModulePath
 
-$CmdletsToExport = "'Register-CancellationTokenEvent','Invoke-CommandWithCancellationToken'"
+$CmdletsToExport = @('Register-CancellationTokenEvent','Invoke-CommandWithCancellationToken')
 
-@"
-@{
-	RootModule = '$AssemblyName.dll'
-	ModuleVersion = '$Version'
-	GUID = 'cb6bb4f1-56ee-4dce-be88-6eb5f7957c7c'
-	Author = '$Author'
-	CompanyName = '$CompanyName'
-	Copyright = '$Copyright'
-	Description = '$Description'
-	FunctionsToExport = @()
-	CmdletsToExport = @($CmdletsToExport)
-	VariablesToExport = '*'
-	AliasesToExport = @()
-	PrivateData = @{
-		PSData = @{
-			ProjectUri = '$ProjectUri'
+New-ModuleManifest -Path "$ModulePath/$ModuleId.psd1" `
+				-RootModule "$AssemblyName.dll" `
+				-ModuleVersion $Version `
+				-Guid 'cb6bb4f1-56ee-4dce-be88-6eb5f7957c7c' `
+				-Author $Author `
+				-CompanyName $CompanyName `
+				-Copyright $Copyright `
+				-Description $Description `
+				-FunctionsToExport @() `
+				-CmdletsToExport $CmdletsToExport `
+				-VariablesToExport '*' `
+				-AliasesToExport @() `
+				-ProjectUri $ProjectUri
+
+Get-Content -LiteralPath "$ModulePath/$ModuleId.psd1" | ForEach-Object {
+	$T = $_.Trim()
+	if ($T)
+	{
+		if ( -not $T.StartsWith('#') )
+		{
+			if ($T.StartsWith('} # End of '))
+			{
+				$_.Substring(0,$_.IndexOf('}')+1)
+			}
+			else
+			{
+				$_
+			}
 		}
 	}
-}
-"@ | Set-Content -Path "$ModulePath/$ModuleId.psd1"
+} | Set-Content -LiteralPath "$ModulePath/$ModuleId.psd1.clean"
+
+Remove-Item -LiteralPath "$ModulePath/$ModuleId.psd1"
+
+Move-Item -LiteralPath "$ModulePath/$ModuleId.psd1.clean" -Destination "$ModulePath/$ModuleId.psd1"
+
+Import-PowerShellDataFile -LiteralPath "$ModulePath/$ModuleId.psd1"

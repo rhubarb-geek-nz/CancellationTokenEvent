@@ -132,6 +132,19 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestAlreadyCancelled()
+        {
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
+            {
+                cancellationTokenSource.Cancel();
+                var list = Invoke(cancellationTokenSource.Token);
+
+                Assert.AreEqual(1, list.Count);
+                Assert.AreEqual($"{typeof(OperationCanceledException).Name},{typeof(InvokeCommandWithCancellationToken).FullName}", list[0].BaseObject);
+            }
+        }
+
+        [TestMethod]
         public void TestInvokeCommandWithCancellationInPowerShell()
         {
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())

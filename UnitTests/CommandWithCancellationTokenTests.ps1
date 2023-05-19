@@ -85,6 +85,21 @@ switch ($name)
 		} -CancellationToken $cancellationToken -NoNewScope
 		'charlie'
 	}
+	'TestAlreadyCancelled' {
+		try
+		{
+			Invoke-CommandWithCancellationToken -ScriptBlock {
+				'alpha'
+				Wait-Event
+				'bravo'
+			} -CancellationToken $cancellationToken -NoNewScope
+			'charlie'
+		}
+		catch
+		{
+			$PSItem.FullyQualifiedErrorId
+		}
+	}
 	'TestStopWaitEvent' {
 		'alpha'
 		Wait-Event

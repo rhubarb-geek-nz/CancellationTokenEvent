@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RhubarbGeekNz.CancellationTokenEvent.Registration</AssemblyName>
     <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <AssemblyTitle>CancellationTokenEvent Registration</AssemblyTitle>
     <Product>CancellationTokenEvent for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
