@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>RhubarbGeekNz.CancellationTokenEvent.Extensions</AssemblyName>
+    <Version>1.0.3</Version>
+    <AssemblyTitle>PowerShell Extensions for CancellationTokenEvent</AssemblyTitle>
+    <Product>CancellationTokenEvent for PowerShell</Product>
+    <Company>rhubarb-geek-nz</Company>
+    <Copyright>Copyright © 2023 Roger Brown</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CancellationTokenEvent\CancellationTokenEvent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
+    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+  </Target>
+
+</Project>

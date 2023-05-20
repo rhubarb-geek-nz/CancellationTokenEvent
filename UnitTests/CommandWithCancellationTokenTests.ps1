@@ -1,7 +1,11 @@
 #!/usr/bin/env pwsh
 # Copyright (c) 2023 Roger Brown.
 # Licensed under the MIT License.
-param($name,$cancellationToken)
+param(
+	[parameter(Mandatory=$true)][string]$name,
+	[parameter(Mandatory=$true)][System.Threading.CancellationToken]$cancellationToken,
+	[parameter(Mandatory=$true)][System.Threading.CancellationTokenSource]$cancellationTokenSource
+)
 
 trap
 {
@@ -12,24 +16,25 @@ switch ($name)
 {
 	'TestInvokeCommandWithCancellation' {
 		Invoke-CommandWithCancellationToken -ScriptBlock {
+			$cancellationTokenSource.CancelAfter(100)
 			Wait-Event
 		} -CancellationToken $cancellationToken -NoNewScope
 	}
 	'TestInvokeCommandWithoutCancellation' {
 		Invoke-CommandWithCancellationToken -ScriptBlock {
-			Start-Sleep -Seconds 5
+			Start-Sleep -Milliseconds 100
 			'sleep ok'
 		} -CancellationToken $cancellationToken -NoNewScope
 	}
 	'TestInvokeCommandWithCancellationInPowerShell' {
 		$cancellationTokenSource = New-Object -Type System.Threading.CancellationTokenSource
-		$cancellationTokenSource.CancelAfter(5000)
 		$cancellationToken = $cancellationTokenSource.Token
 		try
 		{
 			try
 			{
 				Invoke-CommandWithCancellationToken -ScriptBlock {
+					$cancellationTokenSource.CancelAfter(100)
 					Wait-Event
 				} -CancellationToken $cancellationToken -NoNewScope
 			}
@@ -78,12 +83,21 @@ switch ($name)
 		}
 	}
 	'TestStop' {
-		Invoke-CommandWithCancellationToken -ScriptBlock {
-			'alpha'
-			Wait-Event
-			'bravo'
-		} -CancellationToken $cancellationToken -NoNewScope
-		'charlie'
+		$cancellationTokenSourceLocal = New-Object -Type System.Threading.CancellationTokenSource
+		try
+		{
+			Invoke-CommandWithCancellationToken -ScriptBlock {
+				'alpha'
+				$cancellationTokenSource.CancelAfter(100)
+				Wait-Event
+				'bravo'
+			} -CancellationToken $cancellationTokenSourceLocal.Token -NoNewScope
+			'charlie'
+		}
+		finally
+		{
+			$cancellationTokenSourceLocal.Dispose()
+		}
 	}
 	'TestAlreadyCancelled' {
 		try
@@ -102,12 +116,14 @@ switch ($name)
 	}
 	'TestStopWaitEvent' {
 		'alpha'
+		$cancellationTokenSource.CancelAfter(100)
 		Wait-Event
 		'bravo'
 	}
 	'TestStopInvokeCommand' {
 		Invoke-Command -ScriptBlock {
 			'alpha'
+			$cancellationTokenSource.CancelAfter(100)
 			Wait-Event
 			'bravo'
 		} -NoNewScope

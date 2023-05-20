@@ -4,7 +4,6 @@
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace UnitTests
@@ -12,25 +11,19 @@ namespace UnitTests
     [TestClass]
     public class CommandWithCancellationTokenTests
     {
-        InitialSessionState initialSessionState;
+        readonly InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
         PowerShell powerShell;
+
+        public CommandWithCancellationTokenTests()
+        {
+            initialSessionState.AddCancellationTokenEventCmdlets();
+
+            initialSessionState.Variables.Add(new SessionStateVariableEntry("ErrorActionPreference", ActionPreference.Stop, "Stop"));
+        }
 
         [TestInitialize]
         public void Initialize()
         {
-            initialSessionState = InitialSessionState.CreateDefault();
-
-            foreach (Type t in new Type[] {
-                typeof(InvokeCommandWithCancellationToken)
-            })
-            {
-                CmdletAttribute ca = t.GetCustomAttribute<CmdletAttribute>();
-
-                initialSessionState.Commands.Add(new SessionStateCmdletEntry($"{ca.VerbName}-{ca.NounName}", t, ca.HelpUri));
-            }
-
-            initialSessionState.Variables.Add(new SessionStateVariableEntry("ErrorActionPreference",ActionPreference.Stop,"Stop"));
-
             powerShell=PowerShell.Create(initialSessionState);
         }
 
@@ -39,7 +32,6 @@ namespace UnitTests
         {
             powerShell.Dispose();
             powerShell = null;
-            initialSessionState = null;
         }
 
         [TestMethod]
@@ -48,16 +40,15 @@ namespace UnitTests
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
                 cancellationTokenSource.CancelAfter(5000);
-                CancellationToken cancellationToken = cancellationTokenSource.Token;
                 bool exceptionCorrect = false;
 
                 try
                 {
-                    Invoke(cancellationToken);
+                    Invoke(cancellationTokenSource);
                 }
                 catch (RuntimeException ex)
                 {
-                    exceptionCorrect = (ex.InnerException as OperationCanceledException).CancellationToken == cancellationToken;
+                    exceptionCorrect = (ex.InnerException as OperationCanceledException).CancellationToken == cancellationTokenSource.Token;
                 }
 
                 Assert.IsTrue(exceptionCorrect, "exception should be OperationCanceledException");
@@ -69,9 +60,7 @@ namespace UnitTests
         {
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
-                CancellationToken cancellationToken = cancellationTokenSource.Token;
-
-                var list = Invoke(cancellationToken); ;
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(1, list.Count);
                 Assert.AreEqual("sleep ok", list[0].BaseObject);
@@ -83,7 +72,7 @@ namespace UnitTests
         {
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
-                var list = Invoke(cancellationTokenSource.Token);
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(1, list.Count);
                 Assert.AreEqual("TestInvokeCommandWithArgumentList", list[0].BaseObject);
@@ -95,7 +84,7 @@ namespace UnitTests
         {
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
-                var list = Invoke(cancellationTokenSource.Token);
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(1, list.Count);
                 Assert.AreEqual("TestInvokeCommandWithInputObject", list[0].BaseObject);
@@ -107,7 +96,7 @@ namespace UnitTests
         {
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
-                var list = Invoke(cancellationTokenSource.Token);
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(3, list.Count);
                 Assert.AreEqual("one", list[0].BaseObject);
@@ -122,7 +111,7 @@ namespace UnitTests
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
                 cancellationTokenSource.CancelAfter(5000);
-                var list = Invoke(cancellationTokenSource.Token);
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(3, list.Count);
                 Assert.AreEqual("eins", list[0].BaseObject);
@@ -137,7 +126,7 @@ namespace UnitTests
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
                 cancellationTokenSource.Cancel();
-                var list = Invoke(cancellationTokenSource.Token);
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(1, list.Count);
                 Assert.AreEqual($"{typeof(OperationCanceledException).Name},{typeof(InvokeCommandWithCancellationToken).FullName}", list[0].BaseObject);
@@ -149,7 +138,7 @@ namespace UnitTests
         {
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
-                var list = Invoke(cancellationTokenSource.Token);
+                var list = Invoke(cancellationTokenSource);
 
                 Assert.AreEqual(1, list.Count);
                 Assert.IsTrue((bool)list[0].BaseObject);
@@ -159,23 +148,18 @@ namespace UnitTests
         [TestMethod]
         public void TestStop()
         {
-            using (CancellationTokenSource cancellationTokenSourceOuter = new CancellationTokenSource())
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
                 PowerShell localPowerShell = powerShell;
 
-                using (var registration = cancellationTokenSourceOuter.Token.Register(() =>
+                using (var registration = cancellationTokenSource.Token.Register(() =>
                 {
                     localPowerShell.Stop();
                 }))
                 {
-                    cancellationTokenSourceOuter.CancelAfter(5000);
+                    var list = Invoke(cancellationTokenSource);
 
-                    using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
-                    {
-                        var list = Invoke(cancellationTokenSource.Token);
-
-                        Assert.AreEqual("alpha", list[0].BaseObject);
-                    }
+                    Assert.AreEqual("alpha", list[0].BaseObject);
                 }
             }
         }
@@ -183,24 +167,19 @@ namespace UnitTests
         [TestMethod]
         public void TestStopWaitEvent()
         {
-            using (CancellationTokenSource cancellationTokenSourceOuter = new CancellationTokenSource())
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
                 PowerShell localPowerShell = powerShell;
 
-                using (var registration = cancellationTokenSourceOuter.Token.Register(() =>
+                using (var registration = cancellationTokenSource.Token.Register(() =>
                 {
                     localPowerShell.Stop();
                 }))
                 {
-                    cancellationTokenSourceOuter.CancelAfter(5000);
+                    var list = Invoke(cancellationTokenSource);
 
-                    using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
-                    {
-                        var list = Invoke(cancellationTokenSource.Token);
-
-                        Assert.AreEqual(1, list.Count);
-                        Assert.AreEqual("alpha", list[0].BaseObject);
-                    }
+                    Assert.AreEqual(1, list.Count);
+                    Assert.AreEqual("alpha", list[0].BaseObject);
                 }
             }
         }
@@ -208,31 +187,34 @@ namespace UnitTests
         [TestMethod]
         public void TestStopInvokeCommand()
         {
-            using (CancellationTokenSource cancellationTokenSourceOuter = new CancellationTokenSource())
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
             {
                 PowerShell localPowerShell = powerShell;
 
-                using (var registration = cancellationTokenSourceOuter.Token.Register(() =>
+                using (var registration = cancellationTokenSource.Token.Register(() =>
                 {
                     localPowerShell.Stop();
                 }))
                 {
-                    cancellationTokenSourceOuter.CancelAfter(5000);
+                    var list = Invoke(cancellationTokenSource);
 
-                    using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource())
-                    {
-                        var list = Invoke(cancellationTokenSource.Token);
-
-                        Assert.AreEqual(1, list.Count);
-                        Assert.AreEqual("alpha", list[0].BaseObject);
-                    }
+                    Assert.AreEqual(1, list.Count);
+                    Assert.AreEqual("alpha", list[0].BaseObject);
                 }
             }
         }
 
-        private Collection<PSObject> Invoke(CancellationToken cancellationToken, [CallerMemberName] string name = null)
+        private Collection<PSObject> Invoke(CancellationTokenSource cancellationTokenSource, [CallerMemberName] string name = null)
         {
-            powerShell.AddScript(Resources.CommandWithCancellationTokenTests).AddArgument(name).AddArgument(cancellationToken);
+            using var cancellationTokenSourceCallback = new CancellationTokenSource();
+            using var cancellationTokenSourceRegistration = cancellationTokenSourceCallback.Token.Register(() => {
+                cancellationTokenSource.Cancel(); 
+            });
+
+            powerShell.AddScript(Resources.CommandWithCancellationTokenTests)
+                .AddArgument(name)
+                .AddArgument(cancellationTokenSource.Token)
+                .AddArgument(cancellationTokenSourceCallback);
 
             return powerShell.Invoke();
         }

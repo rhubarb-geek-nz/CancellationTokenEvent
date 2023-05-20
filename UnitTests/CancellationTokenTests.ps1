@@ -2,8 +2,8 @@
 # Copyright (c) 2023 Roger Brown.
 # Licensed under the MIT License.
 param(
-	$ArgumentByName = $False,
-	$SourceIdentifier = 'CancellationToken'
+	[bool]$ArgumentByName = $False,
+	[string]$SourceIdentifier = 'CancellationToken'
 )
 
 trap
@@ -12,7 +12,6 @@ trap
 }
 
 $cancellationTokenSource = New-Object -Type System.Threading.CancellationTokenSource
-$cancellationTokenSource.CancelAfter(5000)
 $cancellationToken = $cancellationTokenSource.Token
 
 if ($ArgumentByName)
@@ -26,14 +25,22 @@ else
 
 Register-ObjectEvent -InputObject $cancellationEvent -EventName 'Cancelled' -SourceIdentifier $SourceIdentifier
 
-$event = Wait-Event -SourceIdentifier $SourceIdentifier
+try
+{
+	$cancellationTokenSource.CancelAfter(100)
 
-$event.SourceIdentifier
+	$event = Wait-Event -SourceIdentifier $SourceIdentifier
 
-Remove-Event -EventIdentifier $event.EventIdentifier
+	$event.SourceIdentifier
 
-Unregister-Event -SourceIdentifier $SourceIdentifier
+	Remove-Event -EventIdentifier $event.EventIdentifier
+}
+finally
+{
+	Unregister-Event -SourceIdentifier $SourceIdentifier
 
-$cancellationEvent.Dispose()
+	$cancellationEvent.Dispose()
 
-$cancellationTokenSource.Dispose()
+	$cancellationTokenSource.Dispose()
+}
+

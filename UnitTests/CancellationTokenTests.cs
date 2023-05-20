@@ -3,30 +3,23 @@
 
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using System.Reflection;
 
 namespace UnitTests
 {
     [TestClass]
     public class CancellationTokenTests
     {
-        InitialSessionState initialSessionState;
+        readonly InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
         PowerShell powerShell;
+
+        public CancellationTokenTests()
+        {
+            initialSessionState.AddCancellationTokenEventCmdlets();
+        }
 
         [TestInitialize]
         public void Initialize()
         {
-            initialSessionState = InitialSessionState.CreateDefault();
-
-            foreach (Type t in new Type[] {
-                typeof(RegisterCancellationTokenEvent)
-            })
-            {
-                CmdletAttribute ca = t.GetCustomAttribute<CmdletAttribute>();
-
-                initialSessionState.Commands.Add(new SessionStateCmdletEntry($"{ca.VerbName}-{ca.NounName}", t, ca.HelpUri));
-            }
-
             powerShell=PowerShell.Create(initialSessionState);
         }
 
@@ -35,7 +28,6 @@ namespace UnitTests
         {
             powerShell.Dispose();
             powerShell = null;
-            initialSessionState = null;
         }
 
         [TestMethod]
