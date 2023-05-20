@@ -24,7 +24,7 @@ namespace UnitTests
         [TestInitialize]
         public void Initialize()
         {
-            powerShell=PowerShell.Create(initialSessionState);
+            powerShell = PowerShell.Create(initialSessionState);
         }
 
         [TestCleanup]

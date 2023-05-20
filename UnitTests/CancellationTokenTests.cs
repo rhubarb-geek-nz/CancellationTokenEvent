@@ -20,7 +20,7 @@ namespace UnitTests
         [TestInitialize]
         public void Initialize()
         {
-            powerShell=PowerShell.Create(initialSessionState);
+            powerShell = PowerShell.Create(initialSessionState);
         }
 
         [TestCleanup]
@@ -86,9 +86,13 @@ namespace UnitTests
         [TestMethod]
         public void TestNullEvent()
         {
-            CancellationTokenSource src = new CancellationTokenSource();
-            CancellationTokenEventRegistration registration = new CancellationTokenEventRegistration(src.Token);
-            src.Cancel();
+            using (CancellationTokenSource src = new CancellationTokenSource())
+            {
+                using (CancellationTokenEventRegistration registration = new CancellationTokenEventRegistration(src.Token))
+                {
+                    src.Cancel();
+                }
+            }
         }
     }
 }
