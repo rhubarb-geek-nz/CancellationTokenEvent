@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RhubarbGeekNz.CancellationTokenEvent.PSCmdlet</AssemblyName>
-    <Copyright>Copyright © 2023 Roger Brown</Copyright>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
     <Version>1.0.3</Version>
     <AssemblyTitle>PowerShell Cmdlet for CancellationTokenEvent</AssemblyTitle>
     <Product>CancellationTokenEvent for PowerShell</Product>
@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md">
+    <None Include="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

@@ -7,8 +7,16 @@
     <AssemblyTitle>PowerShell Extensions for CancellationTokenEvent</AssemblyTitle>
     <Product>CancellationTokenEvent for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
-    <Copyright>Copyright © 2023 Roger Brown</Copyright>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CancellationTokenEvent\CancellationTokenEvent.csproj" />

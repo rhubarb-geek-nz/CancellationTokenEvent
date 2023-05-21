@@ -3,12 +3,20 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RhubarbGeekNz.CancellationTokenEvent.Registration</AssemblyName>
-    <Copyright>Copyright © 2023 Roger Brown</Copyright>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
     <Version>1.0.3</Version>
     <AssemblyTitle>CancellationTokenEvent Registration</AssemblyTitle>
     <Product>CancellationTokenEvent for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
     <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
