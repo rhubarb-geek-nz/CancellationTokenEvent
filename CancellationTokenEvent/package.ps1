@@ -51,7 +51,7 @@ Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
 	$_ | Copy-Item -Destination $ModulePath
 }
 
-Copy-Item -LiteralPath ( '..'+$DSC+'README.md' ) -Destination $ModulePath
+Copy-Item -LiteralPath 'README.md' -Destination $ModulePath
 
 $CmdletsToExport = @('Register-CancellationTokenEvent','Invoke-CommandWithCancellationToken')
 
