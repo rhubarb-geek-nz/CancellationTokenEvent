@@ -1,9 +1,9 @@
 # CancellationTokenEvent
-`CancellationToken` tools for `PowerShell`
+[CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken) tools for `PowerShell`
 
 ## Register-CancellationTokenEvent
 
-Use `CancellationToken` with `PowerShell` events
+Use [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken) with `PowerShell` events
 
 Example code
 
@@ -17,7 +17,7 @@ Register-ObjectEvent -InputObject $cancellationEvent -EventName 'Cancelled' -Sou
 
 This allows the usage of the standard `PowerShell` event sourced by the cancellation token.
 
-The `dotnet` object used has a `Cancelled` event that can be consumed by `Register-ObjectEvent`.
+The `dotnet` object used has a `Cancelled` event that can be consumed by [Register-ObjectEvent](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/register-objectevent).
 
 ```
 public class CancellationTokenEventRegistration : IDisposable
@@ -32,12 +32,12 @@ public class CancellationTokenEventRegistration : IDisposable
 }
 ```
 
-When the cancellation is triggered it will invoke the `Cancelled` action event. When the registration is no longer needed then call `Dispose()` to unregister.
+When the cancellation is triggered it will invoke the `Cancelled` action event. When the registration is no longer needed then call [Dispose](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=net-7.0#system-idisposable-dispose) to unregister.
 See [UnitTests/CancellationTokenTests.ps1](UnitTests/CancellationTokenTests.ps1) for full example.
 
 ## Invoke-CommandWithCancellationToken
 
-Use a `CancellationToken` to stop a `ScriptBlock`
+Use a [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken) to stop a [ScriptBlock](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks)
 
 Example code
 
@@ -51,7 +51,7 @@ Invoke-CommandWithCancellationToken -ScriptBlock {
 } -CancellationToken $cancellationToken -NoNewScope
 ```
 
-This will stop the `Wait-Event` after 5 seconds. Internally this works by running the `ScriptBlock` with `Invoke-Command` and using the `CancellationToken` to call `Stop`.
+This will stop the [Wait-Event](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/wait-event) after 5 seconds. Internally this works by running the [ScriptBlock](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks) with [Invoke-Command](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command) and using the [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken) to call [Stop](https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.powershell.stop).
 
 ## Build
 
