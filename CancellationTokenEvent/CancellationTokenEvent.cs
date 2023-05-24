@@ -5,7 +5,7 @@ using System.Management.Automation;
 
 namespace RhubarbGeekNz.CancellationTokenEvent
 {
-    [Cmdlet("Register", "CancellationTokenEvent")]
+    [Cmdlet(VerbsLifecycle.Register, "CancellationTokenEvent")]
     [OutputType(typeof(CancellationTokenEventRegistration))]
     public class RegisterCancellationTokenEvent : PSCmdlet
     {

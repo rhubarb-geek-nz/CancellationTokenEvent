@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace RhubarbGeekNz.CancellationTokenEvent
 {
-    [Cmdlet("Invoke", "CommandWithCancellationToken")]
+    [Cmdlet(VerbsLifecycle.Invoke, "CommandWithCancellationToken")]
     public class InvokeCommandWithCancellationToken : PSCmdlet
     {
         [Parameter(Mandatory = true)]
