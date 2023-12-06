@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Roger Brown.
 # Licensed under the MIT License.
 
-param($Configuration,$TargetFramework,$Platform,$IntDir,$OutDir,$TargetDir)
+param($Configuration,$TargetFramework,$Platform,$IntDir,$OutDir,$PublishDir)
 
 $ModuleName = 'CancellationTokenEvent'
 $CompanyName = 'rhubarb-geek-nz'
@@ -36,7 +36,7 @@ $Author = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Authors").FirstChild.
 $Copyright = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Copyright").FirstChild.Value
 $AssemblyName = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/AssemblyName").FirstChild.Value
 
-$ModulePath = ( $OutDir + $ModuleId )
+$ModulePath = ( $PublishDir + $ModuleId )
 
 if ( Test-Path $ModulePath )
 {
@@ -55,7 +55,7 @@ Copy-Item -LiteralPath 'README.md' -Destination $ModulePath
 
 $CmdletsToExport = @('Register-CancellationTokenEvent','Invoke-CommandWithCancellationToken')
 
-New-ModuleManifest -Path "$ModulePath/$ModuleId.psd1" `
+New-ModuleManifest -Path "$OutDir/$ModuleId.psd1" `
 				-RootModule "$AssemblyName.dll" `
 				-ModuleVersion $Version `
 				-Guid 'cb6bb4f1-56ee-4dce-be88-6eb5f7957c7c' `
@@ -69,26 +69,6 @@ New-ModuleManifest -Path "$ModulePath/$ModuleId.psd1" `
 				-AliasesToExport @() `
 				-ProjectUri $ProjectUri
 
-Get-Content -LiteralPath "$ModulePath/$ModuleId.psd1" | ForEach-Object {
-	$T = $_.Trim()
-	if ($T)
-	{
-		if ( -not $T.StartsWith('#') )
-		{
-			if ($T.StartsWith('} # End of '))
-			{
-				$_.Substring(0,$_.IndexOf('}')+1)
-			}
-			else
-			{
-				$_
-			}
-		}
-	}
-} | Set-Content -LiteralPath "$ModulePath/$ModuleId.psd1.clean"
+Import-PowerShellDataFile -LiteralPath "$OutDir/$ModuleId.psd1" | Export-PowerShellDataFile | Out-File -LiteralPath "$ModulePath/$ModuleId.psd1"
 
-Remove-Item -LiteralPath "$ModulePath/$ModuleId.psd1"
-
-Move-Item -LiteralPath "$ModulePath/$ModuleId.psd1.clean" -Destination "$ModulePath/$ModuleId.psd1"
-
-Import-PowerShellDataFile -LiteralPath "$ModulePath/$ModuleId.psd1"
+Remove-Item "$OutDir/$ModuleId.psd1"
