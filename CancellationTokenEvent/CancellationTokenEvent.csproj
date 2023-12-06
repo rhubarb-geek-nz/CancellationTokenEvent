@@ -43,7 +43,8 @@
   </Target>
 
   <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(TargetDir)" />
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet pwsh -ExecutionPolicy Bypass -File ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(TargetDir)" />
   </Target>
 
 </Project>
