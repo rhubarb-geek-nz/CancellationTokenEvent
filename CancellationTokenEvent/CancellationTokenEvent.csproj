@@ -19,12 +19,14 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CancellationTokenEvent</PackageTags>
+    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -38,11 +40,28 @@
     <ProjectReference Include="..\Registration\Registration.csproj" />
   </ItemGroup>
 
-  <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+        <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Signing assemblies: @(FileToSign)" />
+    <SignFile
+          SigningTarget="@(FileToSign)"
+          CertificateThumbprint="$(CertificateThumbprint)"
+          TimestampUrl="http://timestamp.digicert.com"
+    />
   </Target>
 
   <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).deps.json" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).pdb" />
+      <FilesToDelete Include="$(PublishDir)RhubarbGeekNz.CancellationTokenEvent.Registration.deps.json" />
+      <FilesToDelete Include="$(PublishDir)RhubarbGeekNz.CancellationTokenEvent.Registration.pdb" />
+      <FilesToDelete Include="$(PublishDir)RhubarbGeekNz.CancellationTokenEvent.deps.json" />
+      <FilesToDelete Include="$(PublishDir)RhubarbGeekNz.CancellationTokenEvent.pdb" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
     <Exec Command="dotnet tool restore" />
     <Exec Command="dotnet pwsh -c &quot;Set-Variable -Name 'ErrorActionPreference' -Value 'Stop'; if ( -not ( Get-Module -ListAvailable -Name '$(Company).PowerShellDataFile' ) ) { Install-Module -Name '$(Company).PowerShellDataFile' -Repository 'PSGallery' -Force }&quot; " />
     <Exec Command="dotnet pwsh -ExecutionPolicy Bypass -File ./package.ps1 $(Configuration) $(TargetFramework) $(Platform) $(IntermediateOutputPath) $(OutDir) $(PublishDir)" />

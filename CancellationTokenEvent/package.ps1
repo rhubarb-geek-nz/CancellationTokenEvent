@@ -16,16 +16,6 @@ trap
 	throw $PSItem
 }
 
-if ( -not ( Test-Path $IntDir ))
-{
-	throw "$IntDir not found"
-}
-
-if ( -not ( Test-Path $OutDir ))
-{
-	throw "$OutDir not found"
-}
-
 $xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.csproj")
 
 $ModuleId = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/PackageId").FirstChild.Value
@@ -35,23 +25,6 @@ $Description = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Description").Fi
 $Author = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Authors").FirstChild.Value
 $Copyright = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/Copyright").FirstChild.Value
 $AssemblyName = $xmlDoc.SelectSingleNode("/Project/PropertyGroup/AssemblyName").FirstChild.Value
-
-$ModulePath = ( $PublishDir + $ModuleId )
-
-if ( Test-Path $ModulePath )
-{
-	Remove-Item $ModulePath -Recurse -Force
-}
-
-$null = New-Item -ItemType Directory -Path $ModulePath
-
-Get-ChildItem -LiteralPath $OutDir -Filter '*.dll' | ForEach-Object {
-	$Name = $_.Name
-
-	$_ | Copy-Item -Destination $ModulePath
-}
-
-Copy-Item -LiteralPath 'README.md' -Destination $ModulePath
 
 $CmdletsToExport = @('Register-CancellationTokenEvent','Invoke-CommandWithCancellationToken')
 
@@ -69,6 +42,6 @@ New-ModuleManifest -Path "$OutDir/$ModuleId.psd1" `
 				-AliasesToExport @() `
 				-ProjectUri $ProjectUri
 
-Import-PowerShellDataFile -LiteralPath "$OutDir/$ModuleId.psd1" | Export-PowerShellDataFile | Out-File -LiteralPath "$ModulePath/$ModuleId.psd1"
+Import-PowerShellDataFile -LiteralPath "$OutDir/$ModuleId.psd1" | Export-PowerShellDataFile | Out-File -LiteralPath "$PublishDir$ModuleId.psd1"
 
 Remove-Item "$OutDir/$ModuleId.psd1"

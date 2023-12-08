@@ -9,6 +9,7 @@
     <Product>CancellationTokenEvent for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,8 +19,16 @@
     </None>
   </ItemGroup>
 
-  <Target Name="SignTool" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="pwsh ../signtool.ps1 $(OutDir)$(AssemblyName).dll" />
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+        <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Signing assemblies: @(FileToSign)" />
+    <SignFile
+          SigningTarget="@(FileToSign)"
+          CertificateThumbprint="$(CertificateThumbprint)"
+          TimestampUrl="http://timestamp.digicert.com"
+    />
   </Target>
 
 </Project>
